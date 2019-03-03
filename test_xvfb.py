@@ -83,6 +83,14 @@ class TestXvfb(unittest.TestCase):
         self.assertEqual(display_var, os.environ['DISPLAY'])
         self.assertIsNotNone(xvfb.proc)
 
+    def test_start_with_arbitrary_str_kwargs(self):
+        xvfb = Xvfb(extra_args_str='+extension GLX -noreset')
+        self.addCleanup(xvfb.stop)
+        xvfb.start()
+        display_var = ':{}'.format(xvfb.new_display)
+        self.assertEqual(display_var, os.environ['DISPLAY'])
+        self.assertIsNotNone(xvfb.proc)
+
     def test_start_fails_with_unknown_kwargs(self):
         xvfb = Xvfb(foo='bar')
         with self.assertRaises(RuntimeError):
