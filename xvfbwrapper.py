@@ -29,10 +29,11 @@ class Xvfb(object):
     SLEEP_TIME_BEFORE_START = 0.1
 
     def __init__(self, width=800, height=680, colordepth=24, tempdir=None,
-                 **kwargs):
+                 extra_args_str=None, **kwargs):
         self.width = width
         self.height = height
         self.colordepth = colordepth
+        self.extra_args_str = extra_args_str
         self._tempdir = tempdir or tempfile.gettempdir()
 
         if not self.xvfb_exists():
@@ -44,6 +45,9 @@ class Xvfb(object):
 
         for key, value in kwargs.items():
             self.extra_xvfb_args += ['-{}'.format(key), value]
+            
+        if self.extra_args_str != None:
+            self.extra_xvfb_args += [self.extra_args_str]
 
         if 'DISPLAY' in os.environ:
             self.orig_display = os.environ['DISPLAY'].split(':')[1]
@@ -64,7 +68,8 @@ class Xvfb(object):
         display_var = ':{}'.format(self.new_display)
         self.xvfb_cmd = ['Xvfb', display_var] + self.extra_xvfb_args
         with open(os.devnull, 'w') as fnull:
-            self.proc = subprocess.Popen(self.xvfb_cmd,
+            self.proc = subprocess.Popen(' '.join(self.xvfb_cmd),
+                                         shell=True,
                                          stdout=fnull,
                                          stderr=fnull,
                                          close_fds=True)
@@ -76,7 +81,7 @@ class Xvfb(object):
         else:
             self._cleanup_lock_file()
             raise RuntimeError('Xvfb did not start ({0}): {1}'
-                               .format(ret_code, self.xvfb_cmd))
+                               .format(ret_code, ' '.join(self.xvfb_cmd)))
 
     def stop(self):
         try:
