@@ -83,7 +83,7 @@ class TestXvfb(unittest.TestCase):
         self.assertEqual(display_var, os.environ['DISPLAY'])
         self.assertIsNotNone(xvfb.proc)
 
-    def test_start_with_arbitrary_str_kwargs(self):
+    def test_start_with_arbitrary_args_str(self):
         xvfb = Xvfb(extra_args_str='+extension GLX -noreset')
         self.addCleanup(xvfb.stop)
         xvfb.start()
